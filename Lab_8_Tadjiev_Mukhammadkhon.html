@@ -1,0 +1,307 @@
+<!--
+Name:		Tadjiev Mukhammadkhon
+Date:		April 2020
+Purpose:    Lab 8 - Waste Calculator
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Lab 8</title>
+</head>
+
+<body onload="displayProducts(); calculateWaste();">
+
+    <h1>Grocery Store Waste Tracker</h1>
+
+    <!-- Inventory -->
+    <fieldset>
+        <legend>Store Inventory</legend>
+        <form>
+            <!-- Filter-->
+            <p>
+                Filter Products By:
+                <select id="sbProductsFilter" onchange="displayProducts();">
+                        <option selected>All</option>
+                        <option>Expired</option>
+                        <option>Not Expired</option>
+                    </select>
+            </p>
+
+            <!-- Products Output -->
+            <span><strong>Department | Product | Price ($) | Shelf Life</strong></span>
+            <div id="productOutput">[Print Products here...]</div>
+        </form>
+    </fieldset>
+    <br>
+
+    <!-- Waste Calculator -->
+    <fieldset>
+        <legend>Waste Calculator</legend>
+        <form>
+            <!-- Filter -->
+            <p>
+                Calculate Waste By Department:
+                <select id="sbDepartmentFilter" onchange="calculateWaste();">
+                        <option selected>Entire Store</option>
+                        <option>Bakery</option>
+                        <option>Dairy</option>
+                        <option>Deli</option>
+                        <option>Produce</option>
+                        <option>Vegan</option>
+                    </select>
+            </p>
+
+            <!-- Products Output -->
+            <div id="wasteOutput">[Select a department]</div>
+        </form>
+    </fieldset>
+
+    <!-- Javascript -->
+    <script>
+        // TODO: Constructor function and methods...
+        function Product(name, category, price, shelfLife) { // add date
+            this.name = name; // String the name of the product
+            this.category = category; // String the category of the item
+            this.price = price; // Number Price Canadian / Float – the price of the item
+            this.shelfLife = shelfLife;
+            this.isExpired = function() {
+                    //I used this order of calculation as we’re trying to check for a value < 0. So we have to use that order (current date > expiry date)
+                    var differenceInMilliseconds = (this.shelfLife.getTime() - Date.now()) / (24 * 3600000);
+                    console.log(differenceInMilliseconds);
+                    //return Math.round(differenceInMilliseconds / (24 * 3600000)); // 3600000 milliseconds in an hour, there are 24 hours in the day
+                    // if the product expired positive value return true
+                    if (differenceInMilliseconds > 0) {
+                        return true;
+                        // this.shelfLife = "Expired";
+                    } else {
+                        return false;
+                        //this.shelfLife = "Not Expired";
+                    }
+
+                } // function end 
+
+            this.outputString = function() {
+
+                var shelfLife = "Not Expired";
+                if (this.isExpired()) {
+                    shelfLife = "Expired";
+                }
+
+                return this.name + " | " + this.category + " | " + this.price + " | " + shelfLife;
+
+
+            }
+
+        } // construcor end
+
+
+
+
+
+        // Global array
+        var products = [];
+
+
+        // Some products
+        products.push(new Product("Avacados", "Produce", 8.99, new Date("June 27, 2020")));
+        products.push(new Product("Baguette", "Bakery", 5.99, new Date("July 30, 2020")));
+        products.push(new Product("Beef", "Deli", 14.99, new Date("April 1, 2020")));
+        products.push(new Product("Pears", "Produce", 5.50, new Date("April 2, 2020")));
+        products.push(new Product("2L Chocolate Milk", "Dairy", 4.99, new Date("March 21, 2020")));
+        products.push(new Product("Pumpkin Pie", "Bakery", 10.50, new Date("March 13, 2020")));
+        products.push(new Product("Grapes", "Produce", 6.99, new Date("February 1, 2019")));
+        products.push(new Product("Loaf of Bread", "Bakery", 5.99, new Date("March 30, 2020")));
+        products.push(new Product("Cheddar Cheese", "Dairy", 10.99, new Date("March 14, 2020")));
+        products.push(new Product("Margarine", "Dairy", 8.99, new Date("June 14, 2018")));
+        products.push(new Product("Salami", "Deli", 5.99, new Date("March 13, 2020")));
+        products.push(new Product("Oranges", "Produce", 7.50, new Date("May 2, 2020")));
+        products.push(new Product("Chicken", "Deli", 21.99, new Date("March 22, 2020")));
+        products.push(new Product("Turkey", "Deli", 14.99, new Date("April 3, 2020")));
+        products.push(new Product("Peppers", "Produce", 3.99, new Date("March 27, 2020")));
+        products.push(new Product("Ham", "Deli", 9.99, new Date("May 5, 2020")));
+        products.push(new Product("Chocolate Cake", "Bakery", 19.99, new Date("October 10, 2007"))); // The Cake is a Lie!
+        products.push(new Product("10kg White Flour", "Bakery", 12.99, new Date("September 30, 2020")));
+
+
+
+
+
+
+
+
+
+
+        // TODO: displayProducts() function... 
+        function displayProducts() {
+            let outputElement = document.getElementById('productOutput');
+            let departmentSelection = document.getElementById('sbProductsFilter');
+            // clears the output every time
+            outputElement.innerHTML = "";
+
+            //Loop through array
+            for (var i = 0; i < products.length; i++) {
+
+                var tempParcelItem = products[i]; //Instead of typing StoreItems[i] every time the array we need, we can assign to a variable and use that to refer
+
+                if (departmentSelection.value === 'All') {
+
+                    var tempEL = document.createElement("p");
+                    tempEL.innerText = tempParcelItem.outputString() + " | ";
+
+
+                    //Append to the Div
+                    outputElement.appendChild(tempEL);
+
+                } else if (departmentSelection.value === 'Expired' && tempParcelItem.isExpired()) {
+
+                    var tempEL = document.createElement("p");
+                    tempEL.innerText = tempParcelItem.outputString() + " | ";
+
+
+
+                    //Append to the Div
+                    outputElement.appendChild(tempEL);
+                    // Here testing if isExpired() method == false as it returns true without the false part
+                } else if (departmentSelection.value === 'Not Expired' && tempParcelItem.isExpired() == false) {
+
+                    var tempEL = document.createElement("p");
+                    tempEL.innerText = tempParcelItem.outputString() + " | ";
+
+
+
+                    //Append to the Div
+                    outputElement.appendChild(tempEL);
+
+                }
+            } //end for loop
+
+
+
+        } // end function
+
+
+
+
+
+        // TODO: 
+        function calculateWaste() {
+
+            let sbDepartmentFilter = document.getElementById("sbDepartmentFilter");
+            let wasteOutput = document.getElementById('wasteOutput');
+
+            // clearing the output everytime dropdown is selected
+            wasteOutput.innerHTML = "";
+
+            // var for expired amount to hold
+            var totalExpiredAmount = 0;
+
+
+
+
+
+            for (var i = 0; i < products.length; i++) {
+
+                var tempParcelItem = products[i];
+
+
+
+
+
+                if (sbDepartmentFilter.value === 'Entire Store' && tempParcelItem.isExpired() == true) {
+
+
+
+                    totalExpiredAmount += tempParcelItem.price;
+                    wasteOutput.innerHTML = ` Entire Store reports $${totalExpiredAmount} expired amount of product`;
+
+                    if (tempParcelItem.isExpired() == false) {
+                        alert("[Department] reports no expired product!");
+
+                    }
+
+
+                } else if (sbDepartmentFilter.value === 'Bakery' && tempParcelItem.category == 'Bakery' && tempParcelItem.isExpired() == true) {
+
+
+
+                    totalExpiredAmount += tempParcelItem.price;
+                    wasteOutput.innerHTML = ` ${tempParcelItem.category} reports $${totalExpiredAmount} expired amount of product`;
+
+                    if (tempParcelItem.isExpired() == false) {
+                        wasteOutput.innerHTML = "[Department] reports no expired product!";
+
+                    }
+
+                    //wasteOutput.innerHTML = `Bakery reports ${totalExpiredAmount } expired amount of product`;
+
+
+                } else if (sbDepartmentFilter.value === 'Dairy' && tempParcelItem.category == 'Dairy' && tempParcelItem.isExpired() == true) {
+
+
+
+                    totalExpiredAmount += tempParcelItem.price;
+                    wasteOutput.innerHTML = ` ${tempParcelItem.category} reports $${totalExpiredAmount} expired amount of product`;
+
+
+                    // wasteOutput.innerHTML = `Dairy reports ${totalExpiredAmount } expired amount of product`;
+                    if (tempParcelItem.isExpired() == false) {
+                        wasteOutput.innerHTML = "[Department] reports no expired product!";
+
+                    }
+
+
+                } else if (sbDepartmentFilter.value === 'Deli' && tempParcelItem.category == 'Deli' && tempParcelItem.isExpired() == true) {
+                    // so += acts ++ and increments with tempParcelItem.price
+                    totalExpiredAmount += tempParcelItem.price;
+                    wasteOutput.innerHTML = ` ${tempParcelItem.category} reports $${totalExpiredAmount} expired amount of product`;
+
+
+                    //wasteOutput.innerHTML = `Deli reports ${totalExpiredAmount } expired amount of product`;
+                    if (tempParcelItem.isExpired() == false) {
+                        wasteOutput.innerHTML = "[Department] reports no expired product!";
+
+
+                    }
+
+
+                } else if (sbDepartmentFilter.value === 'Produce' && tempParcelItem.category == 'Produce' && tempParcelItem.isExpired() == true) {
+
+
+                    totalExpiredAmount += tempParcelItem.price;
+                    wasteOutput.innerHTML = ` ${tempParcelItem.category} reports $${totalExpiredAmount} expired amount of product`;
+
+
+
+                    //   wasteOutput.innerHTML = `Produce reports ${totalExpiredAmount } expired amount of product`;
+                    if (tempParcelItem.isExpired() == false) {
+                        wasteOutput.innerHTML = "[Department] reports no expired product!";
+
+
+                    }
+
+
+                } else if (sbDepartmentFilter.value === 'Vegan' && tempParcelItem.category == 'Vegan' && tempParcelItem.isExpired() == true) {
+
+
+                    totalExpiredAmount += tempParcelItem.price;
+                    wasteOutput.innerHTML = ` ${tempParcelItem.category} reports $${totalExpiredAmount} expired amount of product`;
+
+
+                    // wasteOutput.innerHTML = `Vegan reports ${totalExpiredAmount } expired amount of product`;
+                    if (tempParcelItem.isExpired() == false) {
+                        wasteOutput.innerHTML = "[Department] reports no expired product!";
+
+                    }
+
+                }
+
+
+            } // loop end     
+
+
+        } // function end
+    </script>
+</body>
+
+</html>
